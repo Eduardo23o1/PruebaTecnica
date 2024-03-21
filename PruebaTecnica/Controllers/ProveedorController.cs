@@ -15,7 +15,7 @@ namespace PruebaTecnica.Controllers
     [ApiController]
     public class ProveedorController : Controller
     {
-        private static readonly string secretKey = "miClaveSecretaMuySegura1234567890";
+        private static readonly string secretKey = "PruebaTecnicaSecretKey1234567890";
 
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] LoginViewModel model)

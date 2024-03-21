@@ -26,7 +26,7 @@ builder.Services.AddAuthentication(options =>
             ValidateIssuerSigningKey = true,
             ValidIssuer = "tu_issuer",
             ValidAudience = "tu_audience",
-            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("miClaveSecretaMuySegura1234567890"))
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("PruebaTecnicaSecretKey1234567890"))
         };
     });
 
