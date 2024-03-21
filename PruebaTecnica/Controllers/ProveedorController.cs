@@ -6,6 +6,7 @@ using Microsoft.IdentityModel.Tokens;
 using PruebaTecnica.Models;
 using PruebaTecnica.Repositories;
 using System.IdentityModel.Tokens.Jwt;
+using System.Reflection;
 using System.Security.Claims;
 using System.Text;
 
@@ -65,21 +66,41 @@ namespace PruebaTecnica.Controllers
 
         [HttpPut("{id}")]
         [Authorize]
-        public async Task<IActionResult> UpdateProveedor([FromBody] Proveedor proveedor, string id)
+        public async Task<IActionResult> UpdateProveedor(string id, [FromBody] Dictionary<string, object> fieldsToUpdate)
         {
+            if (fieldsToUpdate == null || fieldsToUpdate.Count == 0)
+                return BadRequest("No fields provided for update.");
+
+            var proveedor = await db.GetProveedorById(id);
             if (proveedor == null)
-                return BadRequest();
-            if (proveedor.NombreContacto == string.Empty)
+                return NotFound();
+
+            foreach (var field in fieldsToUpdate)
             {
-                ModelState.AddModelError("Nombre Contacto", "The proveedor shouldn't be empty");
+                if (field.Key == "Id") // Evitar que se actualice el Id
+                    continue;
+
+                var property = proveedor.GetType().GetProperty(field.Key, BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Instance);
+                if (property != null && property.CanWrite)
+                {
+                    // Convertir el valor del campo al tipo esperado por la propiedad
+                    var value = Convert.ChangeType(field.Value.ToString(), property.PropertyType);
+                    property.SetValue(proveedor, value);
+                }
+                else
+                {
+                    ModelState.AddModelError(field.Key, $"The field {field.Key} cannot be updated or does not exist.");
+                }
             }
 
-            proveedor.Id = new MongoDB.Bson.ObjectId(id);
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
 
             await db.UpdateProveedor(proveedor);
 
-            return Created("Created", true);
+            return Ok(proveedor);
         }
+
 
         [HttpDelete]
         [Authorize]
