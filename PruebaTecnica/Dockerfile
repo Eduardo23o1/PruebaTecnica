@@ -2,6 +2,7 @@
 FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS base
 WORKDIR /app
 EXPOSE 80
+ EXPOSE 5024
 
 # Utiliza una imagen base que contenga el SDK de .NET para compilar la aplicación
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
